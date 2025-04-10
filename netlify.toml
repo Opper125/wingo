@@ -1,6 +1,7 @@
 [build]
   publish = "."
   command = "npm install"
+  functions = "functions"
 
 [context.production.environment]
   SUPABASE_URL = "https://qdusallinlchgvifxixd.supabase.co"
