@@ -9,13 +9,14 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
-            background-size: 400% 400%;
-            animation: gradientBG 10s ease infinite;
+            background: linear-gradient(135deg, #1e90ff, #ff00ff, #00ff7f, #ff4500);
+            background-size: 600% 600%;
+            animation: gradientBG 12s ease infinite;
             color: #fff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
         @keyframes gradientBG {
@@ -28,16 +29,42 @@
             display: flex;
             justify-content: space-between;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
         }
 
         #balance, #user-id { font-size: clamp(16px, 4vw, 24px); }
+
+        .winner-ticker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 215, 0, 0.9);
+            padding: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 5;
+        }
+
+        .winner-ticker span {
+            display: inline-block;
+            padding-right: 20px;
+            animation: ticker 20s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
 
         .container {
             flex: 1;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         #round-id {
@@ -46,23 +73,37 @@
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
         }
 
         .number-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
             max-width: 1000px;
             margin: 0 auto;
         }
 
+        .number-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
         .number-btn {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
             border: 2px solid #ffd700;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .number-btn:hover {
@@ -70,8 +111,17 @@
             box-shadow: 0 0 15px #ffd700;
         }
 
-        .number-btn img { width: 100%; max-width: 60px; height: auto; }
-        .color-bar { height: 8px; margin-top: 5px; }
+        .number-btn img {
+            width: 100%;
+            height: auto;
+            max-width: 40px;
+        }
+
+        .color-bar {
+            height: 6px;
+            margin-top: 5px;
+            width: 100%;
+        }
 
         .options, .modes {
             display: flex;
@@ -109,10 +159,11 @@
             display: none;
             width: 90%;
             max-width: 400px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         #bet-modal input { width: 100%; padding: 10px; font-size: 16px; margin: 10px 0; }
-        #bet-modal button, #deposit-withdraw button {
+        #bet-modal button {
             padding: 10px 20px;
             font-size: 16px;
             border-radius: 5px;
@@ -123,58 +174,57 @@
         #cancel-bet { background: #ff3333; }
 
         #result img { width: 100%; max-width: 120px; }
-        #countdown { font-size: clamp(30px, 8vw, 40px); margin: 20px 0; }
+        #countdown { font-size: clamp(30px, 8vw, 40px); margin: 20px 0; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
 
         #history {
             background: rgba(0, 0, 0, 0.7);
             padding: 15px;
             border-top: 2px solid #ffd700;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
         }
-
-        #deposit-withdraw {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        #deposit-btn { background: #00cc00; }
-        #withdraw-btn { background: #ff3333; }
 
         @media (max-width: 600px) {
-            .number-grid { grid-template-columns: repeat(2, 1fr); }
+            .number-btn { width: 50px; height: 50px; }
+            .number-btn img { max-width: 30px; }
             header { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
+    <div class="winner-ticker" id="winner-ticker"></div>
     <header>
-        <div id="user-id">ID: Loading...</div>
+        <div id="user-id"></div>
         <div id="balance">0 MMK</div>
     </header>
     <div class="container">
-        <div id="round-id">2025041000001</div>
+        <div id="round-id"></div>
         <div class="number-grid">
-            <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            <div class="number-btn" data-value="1"><img src="https://github.com/Opper125/wingo/raw/main/1.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            <div class="number-btn" data-value="3"><img src="https://github.com/Opper125/wingo/raw/main/3.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            <div class="number-btn" data-value="5"><img src="https://github.com/Opper125/wingo/raw/main/5.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            <div class="number-btn" data-value="7"><img src="https://github.com/Opper125/wingo/raw/main/7.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            <div class="number-btn" data-value="9"><img src="https://github.com/Opper125/wingo/raw/main/9.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            <div class="number-row">
+                <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+                <div class="number-btn" data-value="1"><img src="https://github.com/Opper125/wingo/raw/main/1.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+                <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+                <div class="number-btn" data-value="3"><img src="https://github.com/Opper125/wingo/raw/main/3.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+                <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            </div>
+            <div class="number-row">
+                <div class="number-btn" data-value="5"><img src="https://github.com/Opper125/wingo/raw/main/5.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+                <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+                <div class="number-btn" data-value="7"><img src="https://github.com/Opper125/wingo/raw/main/7.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+                <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+                <div class="number-btn" data-value="9"><img src="https://github.com/Opper125/wingo/raw/main/9.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            </div>
         </div>
         <div class="options">
             <button id="green-btn" class="option-btn" data-type="green">GREEN</button>
             <button id="red-btn" class="option-btn" data-type="red">RED</button>
             <button id="big-btn" class="option-btn" data-type="big">BIG</button>
             <button id="small-btn" class="option-btn" data-type="small">SMALL</button>
-        </div>
-        <div id="deposit-withdraw">
-            <button id="deposit-btn">ငွေသွင်း</button>
-            <button id="withdraw-btn">ငွေထုတ်</button>
         </div>
         <div class="modes">
             <button class="mode-btn" data-time="1">1 မိနစ်</button>
@@ -217,10 +267,10 @@
             if (!userId) {
                 userId = Math.floor(100000 + Math.random() * 900000).toString();
                 localStorage.setItem('userId', userId);
-                await supabase.from('users').insert({ user_id: userId, balance: 10000 });
+                await supabase.from('users').insert({ user_id: userId, balance: 0 });
             }
             const { data } = await supabase.from('users').select('balance').eq('user_id', userId).single();
-            balance = data.balance;
+            balance = data ? data.balance : 0;
             document.getElementById('user-id').textContent = `ID: ${userId}`;
             document.getElementById('balance').textContent = `${balance} MMK`;
         }
@@ -294,28 +344,6 @@
             });
         });
 
-        document.getElementById('deposit-btn').addEventListener('click', async () => {
-            const amount = prompt('သွင်းလိုသော ငွေပမာဏ (MMK):');
-            if (amount && !isNaN(amount) && amount > 0) {
-                balance += parseInt(amount);
-                await supabase.from('users').update({ balance }).eq('user_id', userId);
-                await supabase.from('transactions').insert({ user_id: userId, amount: parseInt(amount), type: 'deposit' });
-                document.getElementById('balance').textContent = `${balance} MMK`;
-            }
-        });
-
-        document.getElementById('withdraw-btn').addEventListener('click', async () => {
-            const amount = prompt('ထုတ်လိုသော ငွေပမာဏ (MMK):');
-            if (amount && !isNaN(amount) && amount > 0 && amount <= balance) {
-                balance -= parseInt(amount);
-                await supabase.from('users').update({ balance }).eq('user_id', userId);
-                await supabase.from('transactions').insert({ user_id: userId, amount: parseInt(amount), type: 'withdraw' });
-                document.getElementById('balance').textContent = `${balance} MMK`;
-            } else {
-                alert('ထုတ်လိုသော ငွေပမာဏ မမှန်ကန်ပါ။');
-            }
-        });
-
         async function endRound() {
             document.getElementById('countdown').style.display = 'none';
             const roundId = document.getElementById('round-id').textContent;
@@ -344,6 +372,9 @@
                 balance += winnings;
                 await supabase.from('users').update({ balance }).eq('user_id', userId);
                 await supabase.from('transactions').insert({ user_id: userId, amount: winnings, type: 'win' });
+                if (winnings >= 100000) {
+                    updateWinnerTicker(userId, winnings);
+                }
             }
 
             document.getElementById('balance').textContent = `${balance} MMK`;
@@ -383,6 +414,13 @@
             }
         }
 
+        function updateWinnerTicker(userId, winnings) {
+            const ticker = document.getElementById('winner-ticker');
+            const maskedId = `${userId.charAt(0)}*****`;
+            const newWinner = `<span>ID: ${maskedId} - ${winnings} MMK</span>`;
+            ticker.innerHTML += newWinner;
+        }
+
         supabase.channel('game_rounds').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_rounds' }, payload => {
             const { round_id, result } = payload.new;
             if (round_id === document.getElementById('round-id').textContent) {
@@ -417,6 +455,9 @@
                 balance += winnings;
                 await supabase.from('users').update({ balance }).eq('user_id', userId);
                 await supabase.from('transactions').insert({ user_id: userId, amount: winnings, type: 'win' });
+                if (winnings >= 100000) {
+                    updateWinnerTicker(userId, winnings);
+                }
             }
 
             document.getElementById('balance').textContent = `${balance} MMK`;
@@ -441,7 +482,10 @@
             }, 3000);
         }
 
-        initializeUser().then(() => startCountdown());
+        initializeUser().then(() => {
+            updateRoundId();
+            startCountdown();
+        });
     </script>
 </body>
-</html
+</html>
