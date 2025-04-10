@@ -1,0 +1,15 @@
+{
+    "name": "wingo-game",
+    "version": "1.0.0",
+    "description": "Wingo Game Site",
+    "main": "index.html",
+    "scripts": {
+        "start": "serve -s ."
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.0.0"
+    },
+    "devDependencies": {
+        "serve": "^14.0.0"
+    }
+}
