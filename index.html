@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wingo - Ultimate Gambling Experience</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -15,7 +16,6 @@
             flex-direction: column;
             overflow-x: hidden;
         }
-
         header {
             display: flex;
             justify-content: space-between;
@@ -27,14 +27,12 @@
             top: 0;
             z-index: 100;
         }
-
         #user-id, #balance {
             font-size: clamp(16px, 4vw, 22px);
             background: rgba(255, 255, 255, 0.1);
             padding: 8px 15px;
             border-radius: 20px;
         }
-
         .winner-ticker {
             background: linear-gradient(90deg, #ffcc00, #ff4500);
             padding: 10px;
@@ -42,7 +40,6 @@
             white-space: nowrap;
             box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
         }
-
         .winner-ticker span {
             display: inline-block;
             padding-right: 30px;
@@ -50,18 +47,15 @@
             font-weight: bold;
             color: #000;
         }
-
         @keyframes ticker {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
-
         .container {
             flex: 1;
             padding: 20px;
             text-align: center;
         }
-
         #round-id {
             font-size: clamp(22px, 6vw, 30px);
             background: rgba(255, 255, 255, 0.15);
@@ -71,13 +65,11 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
             animation: glow 2s infinite;
         }
-
         @keyframes glow {
             0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
             50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
             100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
         }
-
         .number-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -85,7 +77,6 @@
             max-width: 600px;
             margin: 0 auto;
         }
-
         .number-btn {
             padding: 15px;
             background: rgba(255, 255, 255, 0.1);
@@ -98,23 +89,19 @@
             justify-content: center;
             aspect-ratio: 1;
         }
-
         .number-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 0 20px #ffd700;
         }
-
         .number-btn img {
             width: 100%;
             max-width: 40px;
         }
-
         .color-bar {
             height: 5px;
             margin-top: 5px;
             width: 100%;
         }
-
         .options, .modes {
             display: flex;
             flex-wrap: wrap;
@@ -122,7 +109,6 @@
             gap: 15px;
             margin: 20px 0;
         }
-
         .option-btn, .mode-btn {
             padding: 12px 30px;
             font-size: clamp(14px, 3vw, 18px);
@@ -132,12 +118,10 @@
             transition: all 0.3s;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         }
-
         .option-btn:hover, .mode-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
         }
-
         #green-btn { background: #00cc00; }
         #red-btn { background: #ff3333; }
         #big-btn { background: #ffcc00; color: #000; }
@@ -146,7 +130,6 @@
         #even-btn { background: #00b7eb; }
         .mode-btn { background: #444; }
         .mode-btn.active { background: #ff4500; }
-
         #countdown {
             font-size: clamp(40px, 10vw, 60px);
             margin: 20px 0;
@@ -155,13 +138,11 @@
             padding: 10px;
             border-radius: 10px;
         }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
         #bet-modal, #result {
             position: fixed;
             top: 50%;
@@ -176,7 +157,6 @@
             max-width: 450px;
             box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
         }
-
         #bet-modal input {
             width: 100%;
             padding: 12px;
@@ -185,7 +165,6 @@
             border-radius: 10px;
             border: none;
         }
-
         #bet-modal button, #result button {
             padding: 12px 25px;
             font-size: 18px;
@@ -193,21 +172,17 @@
             cursor: pointer;
             margin: 10px;
         }
-
         #confirm-bet { background: #00cc00; }
         #cancel-bet { background: #ff3333; }
         #close-result { background: #ff4500; }
-
         #result img { width: 100%; max-width: 150px; }
         #result-text { font-size: 20px; margin-top: 20px; }
-
         #history {
             background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-top: 3px solid #ffd700;
             box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
         }
-
         #history-list li {
             list-style: none;
             padding: 10px;
@@ -215,7 +190,6 @@
             margin: 5px 0;
             border-radius: 8px;
         }
-
         #banned-message {
             position: fixed;
             top: 0;
@@ -230,7 +204,6 @@
             font-size: 30px;
             z-index: 2000;
         }
-
         #error-message {
             position: fixed;
             bottom: 20px;
@@ -241,7 +214,6 @@
             display: none;
             z-index: 1500;
         }
-
         @media (max-width: 600px) {
             .number-grid { grid-template-columns: repeat(3, 1fr); }
             .number-btn { padding: 10px; }
@@ -305,23 +277,68 @@
     <div id="error-message"></div>
 
     <script>
+        const supabase = Supabase.createClient(
+            'https://qdusallinlchgvifxixd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDExNTcsImV4cCI6MjA1OTg3NzE1N30.Nnbjv3uJTfkwrrFE75PXU23yWATcfPRzQ748ULB8lGc'
+        );
+
         let userId = localStorage.getItem('userId');
-        let balance = parseInt(localStorage.getItem('balance')) || 0;
+        let balance = 0;
         let currentMode = 10;
         let bets = {};
         let countdown;
         let bettingOpen = true;
-        const startTime = Math.floor(Date.now() / 1000); // စတင်ချိန် စက္ကန့်
+        const startTime = Math.floor(Date.now() / 1000);
         let roundCounters = JSON.parse(localStorage.getItem('roundCounters')) || { 1: 1, 3: 1, 5: 1, 10: 1 };
         let currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
-        function initializeUser() {
-            if (!userId) {
-                userId = Math.floor(100000 + Math.random() * 900000).toString();
-                localStorage.setItem('userId', userId);
+        async function initializeUser() {
+            try {
+                if (!userId) {
+                    userId = Math.floor(100000 + Math.random() * 900000).toString();
+                    localStorage.setItem('userId', userId);
+                    const { error } = await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
+                    if (error) throw new Error(`Error inserting user: ${error.message}`);
+                }
+
+                const { data, error } = await supabase.from('users')
+                    .select('balance, is_banned')
+                    .eq('user_id', userId)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw new Error(`Error fetching user: ${error.message}`);
+                if (!data) {
+                    const { error: insertError } = await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
+                    if (insertError) throw new Error(`Error inserting user: ${insertError.message}`);
+                    balance = 0;
+                } else {
+                    balance = data.balance;
+                    if (data.is_banned) {
+                        document.getElementById('banned-message').style.display = 'flex';
+                        disableGame();
+                    }
+                }
+
+                document.getElementById('user-id').textContent = `ID: ${userId}`;
+                document.getElementById('balance').textContent = `${balance} MMK`;
+
+                // Realtime subscription
+                supabase.channel('users').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `user_id=eq.${userId}` }, payload => {
+                    const { balance: newBalance, is_banned } = payload.new;
+                    balance = newBalance;
+                    document.getElementById('balance').textContent = `${balance} MMK`;
+                    if (is_banned) {
+                        document.getElementById('banned-message').style.display = 'flex';
+                        disableGame();
+                    } else {
+                        document.getElementById('banned-message').style.display = 'none';
+                        document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    }
+                }).subscribe();
+            } catch (err) {
+                console.error('Initialize User Error:', err);
+                showError(`Failed to initialize user: ${err.message}`);
             }
-            document.getElementById('user-id').textContent = `ID: ${userId}`;
-            document.getElementById('balance').textContent = `${balance} MMK`;
         }
 
         function updateRoundId(mode) {
@@ -336,7 +353,6 @@
                 let timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
                 document.getElementById('countdown').style.display = 'block';
                 bettingOpen = timeLeft > 10;
-
                 countdown = setInterval(() => {
                     timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
                     document.getElementById('countdown').textContent = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
@@ -369,7 +385,7 @@
             });
         });
 
-        document.getElementById('confirm-bet').addEventListener('click', () => {
+        document.getElementById('confirm-bet').addEventListener('click', async () => {
             try {
                 if (!bettingOpen) return alert('ထိုးကြေးတင်ချိန် ပြည့်သွားပါပြီ။');
                 const amount = parseInt(document.getElementById('bet-amount').value);
@@ -377,7 +393,8 @@
                 if (amount >= 100 && amount <= balance) {
                     bets[value] = (bets[value] || 0) + amount;
                     balance -= amount;
-                    localStorage.setItem('balance', balance);
+                    const { error } = await supabase.from('users').update({ balance }).eq('user_id', userId);
+                    if (error) throw new Error(`Error updating balance: ${error.message}`);
                     document.getElementById('balance').textContent = `${balance} MMK`;
                     closeModal();
                 } else {
@@ -406,7 +423,7 @@
             });
         });
 
-        function endRound(mode) {
+        async function endRound(mode) {
             try {
                 document.getElementById('countdown').style.display = 'none';
                 const roundId = document.getElementById('round-id').textContent;
@@ -444,7 +461,8 @@
 
                 if (winnings > 0) {
                     balance += winnings;
-                    localStorage.setItem('balance', balance);
+                    const { error } = await supabase.from('users').update({ balance }).eq('user_id', userId);
+                    if (error) throw new Error(`Error updating balance: ${error.message}`);
                     if (winnings >= 100000) {
                         updateWinnerTicker(userId, winnings);
                     }
@@ -469,13 +487,7 @@
                     updateRoundId(mode);
                     bets = {};
                     checkDateChange(mode);
-                    startCountdown(mode);
-                }, { once: true });
-            } catch (err) {
-                console.error('End Round Error:', err);
-                showError(`Round ended with error: ${err.message}`);
-            }
-        }
+ волосся
 
         function addToHistory(result, winnings, mode) {
             const li = document.createElement('li');
@@ -500,6 +512,10 @@
             ticker.innerHTML += newWinner;
         }
 
+        function disableGame() {
+            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
         function showError(message) {
             const errorDiv = document.getElementById('error-message');
             errorDiv.textContent = message;
@@ -507,9 +523,9 @@
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             try {
-                initializeUser();
+                await initializeUser();
                 updateRoundId(currentMode);
                 startCountdown(currentMode);
             } catch (err) {
