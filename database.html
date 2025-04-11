@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingo - Player Database</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #00ffcc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        th {
+            background: linear-gradient(45deg, #00ffcc, #00ccff);
+            color: #000;
+            text-shadow: none;
+        }
+        tr:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 15px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #ff4500, #ff9900);
+            border: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            box-shadow: 0 0 20px #ff4500;
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ကစားသမား အချက်အလက်များ</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>လက်ကျန်ငွေ (MMK)</th>
+                    <th>နောက်ဆုံး အပ်ဒိတ်</th>
+                    <th>Ban ဖြစ်/မဖြစ်</th>
+                </tr>
+            </thead>
+            <tbody id="player-data"></tbody>
+        </table>
+        <button onclick="window.location.href='https://wingo-game.netlify.app'">Game သို့ပြန်သွားရန်</button>
+    </div>
+
+    <script>
+        function loadPlayerData() {
+            const tbody = document.getElementById('player-data');
+            tbody.innerHTML = '';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('balance_')) {
+                    const userId = key.replace('balance_', '');
+                    const balance = parseInt(localStorage.getItem(key)) || 0;
+                    const isBanned = localStorage.getItem(`isBanned_${userId}`) === 'true';
+                    const transactions = JSON.parse(localStorage.getItem(`transactions_${userId}`) || '[]');
+                    const lastUpdate = transactions.length > 0 ? new Date(transactions[transactions.length - 1].date).toLocaleString() : 'N/A';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${userId}</td>
+                        <td>${balance}</td>
+                        <td>${lastUpdate}</td>
+                        <td>${isBanned ? 'Yes' : 'No'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            }
+        }
+
+        window.addEventListener('load', loadPlayerData);
+        setInterval(loadPlayerData, 5000); // Auto-update every 5 seconds
+    </script>
+</body>
+</html>
