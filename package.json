@@ -1,7 +1,7 @@
 {
     "name": "wingo-game",
     "version": "1.0.0",
-    "description": "Wingo Game Site",
+    "description": "Wingo - Ultimate Gambling Experience",
     "main": "index.html",
     "scripts": {
         "start": "serve -s ."
