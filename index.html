@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wingo - Ultimate Gambling Experience</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -306,56 +305,23 @@
     <div id="error-message"></div>
 
     <script>
-        const supabase = Supabase.createClient(
-            process.env.SUPABASE_URL || 'https://qdusallinlchgvifxixd.supabase.co',
-            process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDExNTcsImV4cCI6MjA1OTg3NzE1N30.Nnbjv3uJTfkwrrFE75PXU23yWATcfPRzQ748ULB8lGc'
-        );
-
         let userId = localStorage.getItem('userId');
-        let balance = 0;
+        let balance = parseInt(localStorage.getItem('balance')) || 0;
         let currentMode = 10;
         let bets = {};
         let countdown;
         let bettingOpen = true;
-        let roundCounters = { 1: 1, 3: 1, 5: 1, 10: 1 };
+        const startTime = Math.floor(Date.now() / 1000); // စတင်ချိန် စက္ကန့်
+        let roundCounters = JSON.parse(localStorage.getItem('roundCounters')) || { 1: 1, 3: 1, 5: 1, 10: 1 };
         let currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        const startTime = Math.floor(Date.now() / 1000);
 
-        async function initializeUser() {
-            try {
-                if (!userId) {
-                    userId = Math.floor(100000 + Math.random() * 900000).toString();
-                    const { error: insertError } = await supabase.from('users').insert({ 
-                        user_id: userId, 
-                        balance: 0, 
-                        is_banned: false 
-                    });
-                    if (insertError) throw new Error(`Error inserting user: ${insertError.message}`);
-                    localStorage.setItem('userId', userId);
-                }
-                
-                const { data, error } = await supabase.from('users')
-                    .select('user_id, balance, is_banned')
-                    .eq('user_id', userId)
-                    .single();
-                
-                if (error) throw new Error(`Error fetching user: ${error.message}`);
-                
-                userId = data.user_id;
-                balance = data.balance;
-                document.getElementById('user-id').textContent = `ID: ${userId}`;
-                document.getElementById('balance').textContent = `${balance} MMK`;
-                
-                if (data.is_banned) {
-                    document.getElementById('banned-message').style.display = 'flex';
-                    disableGame();
-                }
-                
-                fetchGameHistory(userId).then(updateHistoryUI);
-            } catch (err) {
-                console.error('Initialize User Error:', err);
-                showError(`Failed to initialize user: ${err.message}`);
+        function initializeUser() {
+            if (!userId) {
+                userId = Math.floor(100000 + Math.random() * 900000).toString();
+                localStorage.setItem('userId', userId);
             }
+            document.getElementById('user-id').textContent = `ID: ${userId}`;
+            document.getElementById('balance').textContent = `${balance} MMK`;
         }
 
         function updateRoundId(mode) {
@@ -370,7 +336,8 @@
                 let timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
                 document.getElementById('countdown').style.display = 'block';
                 bettingOpen = timeLeft > 10;
-                countdown = setInterval(async () => {
+
+                countdown = setInterval(() => {
                     timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
                     document.getElementById('countdown').textContent = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
                     if (timeLeft <= 10) {
@@ -378,7 +345,7 @@
                         document.getElementById('countdown').style.fontSize = '50px';
                         document.getElementById('countdown').textContent = `${timeLeft} စက္ကန့်`;
                         if (timeLeft === 1) {
-                            await endRound(mode);
+                            endRound(mode);
                         }
                     } else {
                         document.getElementById('countdown').style.fontSize = '40px';
@@ -402,7 +369,7 @@
             });
         });
 
-        document.getElementById('confirm-bet').addEventListener('click', async () => {
+        document.getElementById('confirm-bet').addEventListener('click', () => {
             try {
                 if (!bettingOpen) return alert('ထိုးကြေးတင်ချိန် ပြည့်သွားပါပြီ။');
                 const amount = parseInt(document.getElementById('bet-amount').value);
@@ -410,10 +377,7 @@
                 if (amount >= 100 && amount <= balance) {
                     bets[value] = (bets[value] || 0) + amount;
                     balance -= amount;
-                    const { error: updateError } = await supabase.from('users').update({ balance }).eq('user_id', userId);
-                    if (updateError) throw new Error(`Error updating balance: ${updateError.message}`);
-                    const { error: insertError } = await supabase.from('transactions').insert({ user_id: userId, amount, type: 'bet' });
-                    if (insertError) throw new Error(`Error inserting transaction: ${insertError.message}`);
+                    localStorage.setItem('balance', balance);
                     document.getElementById('balance').textContent = `${balance} MMK`;
                     closeModal();
                 } else {
@@ -442,7 +406,7 @@
             });
         });
 
-        async function endRound(mode) {
+        function endRound(mode) {
             try {
                 document.getElementById('countdown').style.display = 'none';
                 const roundId = document.getElementById('round-id').textContent;
@@ -480,10 +444,7 @@
 
                 if (winnings > 0) {
                     balance += winnings;
-                    const { error: updateError } = await supabase.from('users').update({ balance }).eq('user_id', userId);
-                    if (updateError) throw new Error(`Error updating balance: ${updateError.message}`);
-                    const { error: insertError } = await supabase.from('transactions').insert({ user_id: userId, amount: winnings, type: 'win' });
-                    if (insertError) throw new Error(`Error inserting win transaction: ${insertError.message}`);
+                    localStorage.setItem('balance', balance);
                     if (winnings >= 100000) {
                         updateWinnerTicker(userId, winnings);
                     }
@@ -500,13 +461,11 @@
                 `;
                 document.getElementById('result').style.display = 'block';
 
-                const { error: roundError } = await supabase.from('game_rounds').insert({ round_id: roundId, mode, result, created_at: new Date().toISOString() });
-                if (roundError) throw new Error(`Error inserting game round: ${roundError.message}`);
-                
                 addToHistory(result, winnings, mode);
                 document.getElementById('close-result').addEventListener('click', () => {
                     document.getElementById('result').style.display = 'none';
                     roundCounters[mode]++;
+                    localStorage.setItem('roundCounters', JSON.stringify(roundCounters));
                     updateRoundId(mode);
                     bets = {};
                     checkDateChange(mode);
@@ -529,6 +488,7 @@
             if (today !== currentDate) {
                 currentDate = today;
                 roundCounters[mode] = 1;
+                localStorage.setItem('roundCounters', JSON.stringify(roundCounters));
                 document.getElementById('history-list').innerHTML = '';
             }
         }
@@ -540,36 +500,6 @@
             ticker.innerHTML += newWinner;
         }
 
-        function disableGame() {
-            document.querySelectorAll('button').forEach(btn => btn.disabled = true);
-        }
-
-        async function fetchGameHistory(userId) {
-            try {
-                const { data, error } = await supabase.from('transactions')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false })
-                    .limit(10);
-                if (error) throw new Error(`Error fetching history: ${error.message}`);
-                return data || [];
-            } catch (err) {
-                console.error('Fetch History Error:', err);
-                showError(`Failed to fetch history: ${err.message}`);
-                return [];
-            }
-        }
-
-        function updateHistoryUI(history) {
-            const historyList = document.getElementById('history-list');
-            historyList.innerHTML = '';
-            history.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = `${item.created_at} - ${item.type === 'bet' ? 'Bet' : 'Win'} ${item.amount} MMK`;
-                historyList.appendChild(li);
-            });
-        }
-
         function showError(message) {
             const errorDiv = document.getElementById('error-message');
             errorDiv.textContent = message;
@@ -577,27 +507,9 @@
             setTimeout(() => errorDiv.style.display = 'none', 5000);
         }
 
-        supabase.channel('users').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `user_id=eq.${userId}` }, payload => {
+        window.addEventListener('load', () => {
             try {
-                const { balance: newBalance, is_banned } = payload.new;
-                balance = newBalance;
-                document.getElementById('balance').textContent = `${balance} MMK`;
-                if (is_banned) {
-                    document.getElementById('banned-message').style.display = 'flex';
-                    disableGame();
-                } else {
-                    document.getElementById('banned-message').style.display = 'none';
-                    document.querySelectorAll('button').forEach(btn => btn.disabled = false);
-                }
-            } catch (err) {
-                console.error('Realtime Update Error:', err);
-                showError(`Realtime update failed: ${err.message}`);
-            }
-        }).subscribe();
-
-        window.addEventListener('load', async () => {
-            try {
-                await initializeUser();
+                initializeUser();
                 updateRoundId(currentMode);
                 startCountdown(currentMode);
             } catch (err) {
