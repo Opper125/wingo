@@ -275,6 +275,7 @@
         let bettingOpen = true;
         let roundCounters = { 1: 1, 3: 1, 5: 1, 10: 1 };
         let currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const startTime = Math.floor(Date.now() / 1000);
 
         async function initializeUser() {
             if (!userId) {
@@ -283,18 +284,19 @@
                 const { error } = await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
                 if (error) console.error('Error creating user:', error);
             }
+            document.getElementById('user-id').textContent = `ID: ${userId}`;
             const { data, error } = await supabase.from('users').select('balance, is_banned').eq('user_id', userId).single();
             if (error) {
                 console.error('Error fetching user:', error);
                 return;
             }
             balance = data ? data.balance : 0;
-            document.getElementById('user-id').textContent = `ID: ${userId}`;
             document.getElementById('balance').textContent = `${balance} MMK`;
             if (data && data.is_banned) {
                 document.getElementById('banned-message').style.display = 'flex';
                 disableGame();
             }
+            fetchGameHistory(userId).then(updateHistoryUI);
         }
 
         function updateRoundId(mode) {
@@ -305,11 +307,11 @@
         function startCountdown(mode) {
             clearInterval(countdown);
             const totalSeconds = mode * 60;
-            let timeLeft = totalSeconds - (Math.floor(Date.now() / 1000) % totalSeconds);
+            let timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
             document.getElementById('countdown').style.display = 'block';
             bettingOpen = timeLeft > 10;
             countdown = setInterval(async () => {
-                timeLeft = totalSeconds - (Math.floor(Date.now() / 1000) % totalSeconds);
+                timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
                 document.getElementById('countdown').textContent = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
                 if (timeLeft <= 10) {
                     bettingOpen = false;
@@ -372,7 +374,14 @@
         async function endRound(mode) {
             document.getElementById('countdown').style.display = 'none';
             const roundId = document.getElementById('round-id').textContent;
-            const result = Math.floor(Math.random() * 10);
+            let result;
+            const totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
+            if (totalBet >= 10000 && bets[Object.keys(bets)[0]] === totalBet) {
+                const betNumber = parseInt(Object.keys(bets)[0]);
+                result = (betNumber + Math.floor(Math.random() * 9) + 1) % 10;
+            } else {
+                result = Math.floor(Math.random() * 10);
+            }
 
             const greenNumbers = [0, 2, 4, 6, 8];
             const redNumbers = [1, 3, 5, 7, 9];
@@ -383,12 +392,13 @@
             let winnings = 0;
 
             for (let bet in bets) {
-                if (bet == result ||
-                    (bet === 'green' && greenNumbers.includes(result)) ||
-                    (bet === 'red' && redNumbers.includes(result)) ||
-                    (bet === 'big' && bigNumbers.includes(result)) ||
-                    (bet === 'small' && smallNumbers.includes(result))) {
-                    winnings += bets[bet] * 2;
+                if (bet == result) {
+                    winnings += bets[bet] * 3.5; // 3.5x for number bets
+                } else if ((bet === 'green' && greenNumbers.includes(result)) ||
+                           (bet === 'red' && redNumbers.includes(result)) ||
+                           (bet === 'big' && bigNumbers.includes(result)) ||
+                           (bet === 'small' && smallNumbers.includes(result))) {
+                    winnings += bets[bet] * 2; // 2x for color/size bets
                 }
             }
 
@@ -412,6 +422,7 @@
             `;
             document.getElementById('result').style.display = 'block';
 
+            await supabase.from('game_rounds').insert({ round_id: roundId, mode, result, created_at: new Date().toISOString() });
             addToHistory(result, winnings, mode);
             setTimeout(() => {
                 document.getElementById('result').style.display = 'none';
