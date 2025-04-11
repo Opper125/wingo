@@ -3,144 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wingo - Ultimate Gambling Experience</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <title>Wingo - Neon Blitz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e0033, #0d1a4d);
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: #fff;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             overflow-x: hidden;
         }
         header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
             position: sticky;
             top: 0;
             z-index: 100;
         }
         #user-id, #balance {
-            font-size: clamp(16px, 4vw, 22px);
-            background: rgba(255, 255, 255, 0.1);
-            padding: 8px 15px;
-            border-radius: 20px;
+            font-size: 20px;
+            background: linear-gradient(90deg, #00ffcc, #00ccff);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-shadow: 0 0 5px #00ffcc;
         }
         .winner-ticker {
-            background: linear-gradient(90deg, #ffcc00, #ff4500);
-            padding: 10px;
+            background: linear-gradient(90deg, #ff00cc, #ff6600);
+            padding: 15px;
             overflow: hidden;
             white-space: nowrap;
-            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 204, 0.7);
         }
         .winner-ticker span {
             display: inline-block;
-            padding-right: 30px;
-            animation: ticker 15s linear infinite;
-            font-weight: bold;
-            color: #000;
+            padding-right: 40px;
+            animation: ticker 12s linear infinite;
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 0 10px #ff00cc;
         }
         @keyframes ticker {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
         .container {
-            flex: 1;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
         }
         #round-id {
-            font-size: clamp(22px, 6vw, 30px);
-            background: rgba(255, 255, 255, 0.15);
+            font-size: 28px;
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-            animation: glow 2s infinite;
-        }
-        @keyframes glow {
-            0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
-            50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-            100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+            text-shadow: 0 0 10px #00ffcc;
         }
         .number-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            max-width: 600px;
+            gap: 15px;
+            max-width: 700px;
             margin: 0 auto;
         }
         .number-btn {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ffd700;
-            border-radius: 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #333);
+            border: 2px solid #00ffcc;
+            border-radius: 15px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            aspect-ratio: 1;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
         }
         .number-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 20px #ffd700;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+            border-color: #ff00cc;
         }
-        .number-btn img {
-            width: 100%;
-            max-width: 40px;
-        }
+        .number-btn img { width: 50px; }
         .color-bar {
-            height: 5px;
-            margin-top: 5px;
+            height: 6px;
             width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
         }
         .options, .modes {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 20px;
+            margin: 30px 0;
         }
         .option-btn, .mode-btn {
-            padding: 12px 30px;
-            font-size: clamp(14px, 3vw, 18px);
+            padding: 15px 35px;
+            font-size: 18px;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
         }
         .option-btn:hover, .mode-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.7);
         }
-        #green-btn { background: #00cc00; }
-        #red-btn { background: #ff3333; }
-        #big-btn { background: #ffcc00; color: #000; }
-        #small-btn { background: #ffcc00; color: #000; }
-        #odd-btn { background: #00b7eb; }
-        #even-btn { background: #00b7eb; }
-        .mode-btn { background: #444; }
-        .mode-btn.active { background: #ff4500; }
+        #green-btn { background: linear-gradient(45deg, #00ff00, #00cc99); }
+        #red-btn { background: linear-gradient(45deg, #ff3333, #ff0066); }
+        #big-btn { background: linear-gradient(45deg, #ffcc00, #ff9900); color: #000; }
+        #small-btn { background: linear-gradient(45deg, #ffcc00, #ff9900); color: #000; }
+        #odd-btn { background: linear-gradient(45deg, #00b7eb, #0066ff); }
+        #even-btn { background: linear-gradient(45deg, #00b7eb, #0066ff); }
+        .mode-btn { background: linear-gradient(45deg, #444, #666); }
+        .mode-btn.active { background: linear-gradient(45deg, #ff4500, #ff9900); }
         #countdown {
-            font-size: clamp(40px, 10vw, 60px);
-            margin: 20px 0;
-            animation: pulse 1s infinite;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
+            font-size: 60px;
+            margin: 30px 0;
+            text-shadow: 0 0 15px #ff00cc;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 15px;
+            animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
         #bet-modal, #result {
@@ -149,46 +143,57 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.95);
-            padding: 30px;
+            padding: 40px;
             border-radius: 20px;
             z-index: 1000;
             display: none;
             width: 90%;
-            max-width: 450px;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            max-width: 500px;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.7);
         }
         #bet-modal input {
             width: 100%;
-            padding: 12px;
-            font-size: 18px;
-            margin: 15px 0;
+            padding: 15px;
+            font-size: 20px;
+            margin: 20px 0;
             border-radius: 10px;
-            border: none;
+            border: 2px solid #00ffcc;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
         }
         #bet-modal button, #result button {
-            padding: 12px 25px;
-            font-size: 18px;
-            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 15px;
             cursor: pointer;
             margin: 10px;
+            transition: all 0.3s ease;
         }
-        #confirm-bet { background: #00cc00; }
-        #cancel-bet { background: #ff3333; }
-        #close-result { background: #ff4500; }
-        #result img { width: 100%; max-width: 150px; }
-        #result-text { font-size: 20px; margin-top: 20px; }
+        #confirm-bet { background: linear-gradient(45deg, #00ff00, #00cc99); }
+        #confirm-bet:hover { box-shadow: 0 0 20px #00ff00; }
+        #cancel-bet { background: linear-gradient(45deg, #ff3333, #ff0066); }
+        #cancel-bet:hover { box-shadow: 0 0 20px #ff3333; }
+        #close-result { background: linear-gradient(45deg, #ff4500, #ff9900); }
+        #close-result:hover { box-shadow: 0 0 20px #ff4500; }
+        #result img { width: 100%; max-width: 200px; animation: bounce 1s infinite; }
+        #result-text { font-size: 24px; margin: 20px 0; text-shadow: 0 0 10px #00ffcc; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
         #history {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-top: 3px solid #ffd700;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-top: 4px solid #ff00cc;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
         }
         #history-list li {
             list-style: none;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            margin: 5px 0;
-            border-radius: 8px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
         #banned-message {
             position: fixed;
@@ -201,24 +206,14 @@
             display: none;
             justify-content: center;
             align-items: center;
-            font-size: 30px;
+            font-size: 40px;
+            text-shadow: 0 0 15px #ff3333;
             z-index: 2000;
-        }
-        #error-message {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: #ff3333;
-            padding: 10px;
-            border-radius: 8px;
-            display: none;
-            z-index: 1500;
         }
         @media (max-width: 600px) {
             .number-grid { grid-template-columns: repeat(3, 1fr); }
-            .number-btn { padding: 10px; }
-            header { flex-direction: column; gap: 10px; }
             #countdown { font-size: 40px; }
+            header { flex-direction: column; gap: 15px; }
         }
     </style>
 </head>
@@ -231,15 +226,15 @@
     <div class="container">
         <div id="round-id"></div>
         <div class="number-grid">
-            <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00ff00;"></div></div>
             <div class="number-btn" data-value="1"><img src="https://github.com/Opper125/wingo/raw/main/1.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00ff00;"></div></div>
             <div class="number-btn" data-value="3"><img src="https://github.com/Opper125/wingo/raw/main/3.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00ff00;"></div></div>
             <div class="number-btn" data-value="5"><img src="https://github.com/Opper125/wingo/raw/main/5.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00ff00;"></div></div>
             <div class="number-btn" data-value="7"><img src="https://github.com/Opper125/wingo/raw/main/7.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00ff00;"></div></div>
             <div class="number-btn" data-value="9"><img src="https://github.com/Opper125/wingo/raw/main/9.png"><div class="color-bar" style="background: #ff3333;"></div></div>
         </div>
         <div class="options">
@@ -274,103 +269,82 @@
         <ul id="history-list"></ul>
     </div>
     <div id="banned-message">သင့်အကောင့်ကို ပိတ်ထားပါသည်။</div>
-    <div id="error-message"></div>
 
     <script>
-        const supabase = Supabase.createClient(
-            'https://qdusallinlchgvifxixd.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDExNTcsImV4cCI6MjA1OTg3NzE1N30.Nnbjv3uJTfkwrrFE75PXU23yWATcfPRzQ748ULB8lGc'
-        );
-
-        let userId = localStorage.getItem('userId');
-        let balance = 0;
+        let userId = localStorage.getItem('userId') || Math.floor(100000 + Math.random() * 900000).toString();
+        let balance = parseInt(localStorage.getItem(`balance_${userId}`)) || 0;
+        let isBanned = localStorage.getItem(`isBanned_${userId}`) === 'true';
         let currentMode = 10;
         let bets = {};
         let countdown;
-        let currentRoundId = null;
-        const startTime = Math.floor(Date.now() / 1000);
+        let currentRoundId = localStorage.getItem('currentRoundId') || generateRoundId();
+        let roundStartTime = parseInt(localStorage.getItem('roundStartTime')) || Date.now();
 
-        async function initializeUser() {
-            if (!userId) {
-                userId = Math.floor(100000 + Math.random() * 900000).toString();
+        function generateRoundId() {
+            const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+            return `${date}${currentMode}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;
+        }
+
+        function initializeUser() {
+            if (!localStorage.getItem('userId')) {
                 localStorage.setItem('userId', userId);
-                await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
-            }
-            const { data } = await supabase.from('users').select('balance, is_banned').eq('user_id', userId).single();
-            balance = data?.balance || 0;
-            if (data?.is_banned) {
-                document.getElementById('banned-message').style.display = 'flex';
-                disableGame();
+                localStorage.setItem(`balance_${userId}`, balance);
+                localStorage.setItem(`isBanned_${userId}`, 'false');
             }
             document.getElementById('user-id').textContent = `ID: ${userId}`;
             document.getElementById('balance').textContent = `${balance} MMK`;
-
-            supabase.channel('users').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `user_id=eq.${userId}` }, payload => {
-                balance = payload.new.balance;
-                document.getElementById('balance').textContent = `${balance} MMK`;
-                if (payload.new.is_banned) {
-                    document.getElementById('banned-message').style.display = 'flex';
-                    disableGame();
-                } else {
-                    document.getElementById('banned-message').style.display = 'none';
-                }
-            }).subscribe();
-        }
-
-        async function initializeRound() {
-            const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            const { data: rounds } = await supabase.from('game_rounds').select('*').eq('mode', currentMode).eq('status', 'active').order('start_time', { ascending: false }).limit(1);
-            if (!rounds.length) {
-                currentRoundId = `${currentDate}${currentMode}${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;
-                await supabase.from('game_rounds').insert({ round_id: currentRoundId, mode: currentMode, status: 'active' });
-            } else {
-                currentRoundId = rounds[0].round_id;
+            if (isBanned) {
+                document.getElementById('banned-message').style.display = 'flex';
+                disableGame();
             }
-            document.getElementById('round-id').textContent = currentRoundId;
-            startCountdown(currentMode);
         }
 
-        function startCountdown(mode) {
-            clearInterval(countdown);
-            const totalSeconds = mode * 60;
-            let timeLeft = totalSeconds - ((Math.floor(Date.now() / 1000) - startTime) % totalSeconds);
+        function startGameLoop() {
+            const totalSeconds = currentMode * 60;
+            let timeLeft = totalSeconds - Math.floor((Date.now() - roundStartTime) / 1000) % totalSeconds;
+            document.getElementById('round-id').textContent = currentRoundId;
             document.getElementById('countdown').style.display = 'block';
-            countdown = setInterval(async () => {
+
+            countdown = setInterval(() => {
                 timeLeft--;
                 document.getElementById('countdown').textContent = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
                 if (timeLeft <= 10) {
-                    document.getElementById('countdown').style.fontSize = '50px';
+                    document.getElementById('countdown').style.fontSize = '70px';
                     document.getElementById('countdown').textContent = `${timeLeft} စက္ကန့်`;
-                    if (timeLeft <= 0) {
-                        await endRound(mode);
-                        timeLeft = totalSeconds;
-                    }
-                } else {
-                    document.getElementById('countdown').style.fontSize = '40px';
+                }
+                if (timeLeft <= 0) {
+                    endRound();
+                    timeLeft = totalSeconds;
+                    roundStartTime = Date.now();
+                    currentRoundId = generateRoundId();
+                    localStorage.setItem('currentRoundId', currentRoundId);
+                    localStorage.setItem('roundStartTime', roundStartTime);
+                    document.getElementById('round-id').textContent = currentRoundId;
                 }
             }, 1000);
         }
 
         document.querySelectorAll('.number-btn, .option-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const modal = document.getElementById('bet-modal');
-                modal.style.display = 'block';
-                modal.dataset.type = btn.dataset.type || 'number';
-                modal.dataset.value = btn.dataset.value || btn.dataset.type;
+                if (!isBanned) {
+                    const modal = document.getElementById('bet-modal');
+                    modal.style.display = 'block';
+                    modal.dataset.type = btn.dataset.type || 'number';
+                    modal.dataset.value = btn.dataset.value || btn.dataset.type;
+                }
             });
         });
 
-        document.getElementById('confirm-bet').addEventListener('click', async () => {
+        document.getElementById('confirm-bet').addEventListener('click', () => {
             const amount = parseInt(document.getElementById('bet-amount').value);
             const { type, value } = document.getElementById('bet-modal').dataset;
             if (amount >= 100 && amount <= balance) {
                 balance -= amount;
-                await supabase.from('users').update({ balance }).eq('user_id', userId);
-                await supabase.from('bets').insert({ user_id: userId, round_id: currentRoundId, bet_type: type, bet_value: value, amount });
-                await supabase.from('transactions').insert({ user_id: userId, amount, type: 'bet' });
-                bets[value] = (bets[value] || 0) + amount;
+                localStorage.setItem(`balance_${userId}`, balance);
                 document.getElementById('balance').textContent = `${balance} MMK`;
+                bets[value] = (bets[value] || 0) + amount;
                 closeModal();
+                saveTransaction('bet', amount);
             } else {
                 alert('ငွေပမာဏ မမှန်ကန်ပါ။');
             }
@@ -384,19 +358,21 @@
         }
 
         document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', () => {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentMode = parseInt(btn.dataset.time);
-                await initializeRound();
+                clearInterval(countdown);
+                roundStartTime = Date.now();
+                currentRoundId = generateRoundId();
+                localStorage.setItem('currentRoundId', currentRoundId);
+                localStorage.setItem('roundStartTime', roundStartTime);
+                startGameLoop();
             });
         });
 
-        async function endRound(mode) {
-            clearInterval(countdown);
+        function endRound() {
             const result = Math.floor(Math.random() * 10);
-            await supabase.from('game_rounds').update({ result, status: 'completed', end_time: new Date() }).eq('round_id', currentRoundId);
-
             const greenNumbers = [0, 2, 4, 6, 8];
             const redNumbers = [1, 3, 5, 7, 9];
             const bigNumbers = [5, 6, 7, 8, 9];
@@ -404,42 +380,22 @@
             const oddNumbers = [1, 3, 5, 7, 9];
             const evenNumbers = [0, 2, 4, 6, 8];
 
-            const { data: roundBets } = await supabase.from('bets').select('*').eq('round_id', currentRoundId);
             let winnings = 0;
-            for (const bet of roundBets) {
-                if (bet.user_id === userId) {
-                    if (bet.bet_type === 'number' && parseInt(bet.bet_value) === result) {
-                        winnings += bet.amount * 3.5;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'green' && greenNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'red' && redNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'big' && bigNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'small' && smallNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'odd' && oddNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else if (bet.bet_type === 'even' && evenNumbers.includes(result)) {
-                        winnings += bet.amount * 2;
-                        await supabase.from('bets').update({ status: 'won' }).eq('id', bet.id);
-                    } else {
-                        await supabase.from('bets').update({ status: 'lost' }).eq('id', bet.id);
-                    }
-                }
+            for (const [value, amount] of Object.entries(bets)) {
+                if (value === String(result)) winnings += amount * 3.5;
+                else if (value === 'green' && greenNumbers.includes(result)) winnings += amount * 2;
+                else if (value === 'red' && redNumbers.includes(result)) winnings += amount * 2;
+                else if (value === 'big' && bigNumbers.includes(result)) winnings += amount * 2;
+                else if (value === 'small' && smallNumbers.includes(result)) winnings += amount * 2;
+                else if (value === 'odd' && oddNumbers.includes(result)) winnings += amount * 2;
+                else if (value === 'even' && evenNumbers.includes(result)) winnings += amount * 2;
             }
 
             if (winnings > 0) {
                 balance += winnings;
-                await supabase.from('users').update({ balance }).eq('user_id', userId);
-                await supabase.from('transactions').insert({ user_id: userId, amount: winnings, type: 'win' });
-                await supabase.from('winners').insert({ user_id: userId, round_id: currentRoundId, winnings });
+                localStorage.setItem(`balance_${userId}`, balance);
+                document.getElementById('balance').textContent = `${balance} MMK`;
+                saveTransaction('win', winnings);
                 if (winnings >= 100000) updateWinnerTicker(userId, winnings);
             }
 
@@ -450,13 +406,18 @@
                 ${winnings > 0 ? `Win +${winnings} MMK` : 'Lost'}
             `;
             document.getElementById('result').style.display = 'block';
-            addToHistory(result, winnings, mode);
+            addToHistory(result, winnings, currentMode);
 
-            document.getElementById('close-result').onclick = async () => {
+            document.getElementById('close-result').onclick = () => {
                 document.getElementById('result').style.display = 'none';
                 bets = {};
-                await initializeRound();
             };
+        }
+
+        function saveTransaction(type, amount) {
+            const transactions = JSON.parse(localStorage.getItem(`transactions_${userId}`) || '[]');
+            transactions.push({ type, amount, date: new Date().toISOString() });
+            localStorage.setItem(`transactions_${userId}`, JSON.stringify(transactions));
         }
 
         function addToHistory(result, winnings, mode) {
@@ -475,9 +436,9 @@
             document.querySelectorAll('button').forEach(btn => btn.disabled = true);
         }
 
-        window.addEventListener('load', async () => {
-            await initializeUser();
-            await initializeRound();
+        window.addEventListener('load', () => {
+            initializeUser();
+            startGameLoop();
         });
     </script>
 </body>
