@@ -12,6 +12,16 @@ async function fetchGameHistory(userId) {
     return data || [];
 }
 
+async function fetchGameRounds(mode) {
+    const { data, error } = await supabase.from('game_rounds')
+        .select('*')
+        .eq('mode', mode)
+        .order('created_at', { ascending: false })
+        .limit(10);
+    if (error) console.error('Error fetching rounds:', error);
+    return data || [];
+}
+
 function updateHistoryUI(history) {
     const historyList = document.getElementById('history-list');
     historyList.innerHTML = '';
@@ -30,6 +40,13 @@ supabase.channel('transactions').on('postgres_changes', { event: 'INSERT', schem
     }
 }).subscribe();
 
+supabase.channel('game_rounds').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_rounds' }, async payload => {
+    const mode = payload.new.mode;
+    const rounds = await fetchGameRounds(mode);
+    // Update UI if needed
+}).subscribe();
+
 window.supabase = supabase;
 window.fetchGameHistory = fetchGameHistory;
+window.fetchGameRounds = fetchGameRounds;
 window.updateHistoryUI = updateHistoryUI;
