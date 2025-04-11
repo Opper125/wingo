@@ -77,101 +77,65 @@
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDMwMTE1NywiZXhwIjoyMDU5ODc3MTU3fQ.gDKIUHQxKwZubxyL-Nd_fg8ZeqyQKvMUswAeTnTterE'
         );
 
-        window.addEventListener('load', () => {
-            document.getElementById('submit-btn').addEventListener('click', async () => {
-                try {
-                    const userId = document.getElementById('user-id-input').value;
-                    const amount = parseInt(document.getElementById('amount').value);
-                    const type = document.getElementById('transaction-type').value;
+        document.getElementById('submit-btn').addEventListener('click', async () => {
+            const userId = document.getElementById('user-id-input').value;
+            const amount = parseInt(document.getElementById('amount').value);
+            const type = document.getElementById('transaction-type').value;
 
-                    if (!userId || isNaN(amount) || amount <= 0) {
-                        document.getElementById('message').textContent = 'မမှန်ကန်သော အချက်အလက်။';
-                        return;
-                    }
+            if (!userId || !amount || amount <= 0) {
+                document.getElementById('message').textContent = 'မမှန်ကန်သော အချက်အလက်။';
+                return;
+            }
 
-                    let { data: user, error } = await supabase.from('users').select('balance').eq('user_id', userId).single();
-                    if (error || !user) {
-                        document.getElementById('message').textContent = 'User ID မရှိပါ။';
-                        return;
-                    }
+            const { data: user } = await supabase.from('users').select('balance').eq('user_id', userId).single();
+            if (!user) {
+                document.getElementById('message').textContent = 'User ID မရှိပါ။';
+                return;
+            }
 
-                    let newBalance = user.balance;
-                    if (type === 'deposit') {
-                        newBalance += amount;
-                    } else if (type === 'withdraw') {
-                        if (newBalance < amount) {
-                            document.getElementById('message').textContent = 'လက်ကျန်ငွေ မလုံလောက်ပါ။';
-                            return;
-                        }
-                        newBalance -= amount;
-                    }
+            let newBalance = user.balance;
+            if (type === 'deposit') {
+                newBalance += amount;
+            } else if (type === 'withdraw' && newBalance >= amount) {
+                newBalance -= amount;
+            } else {
+                document.getElementById('message').textContent = 'လက်ကျန်ငွေ မလုံလောက်ပါ။';
+                return;
+            }
 
-                    const { error: updateError } = await supabase.from('users').update({ balance: newBalance }).eq('user_id', userId);
-                    if (updateError) throw new Error(`Error updating balance: ${updateError.message}`);
+            await supabase.from('users').update({ balance: newBalance }).eq('user_id', userId);
+            await supabase.from('transactions').insert({ user_id: userId, amount, type });
+            document.getElementById('message').textContent = `${type === 'deposit' ? 'ငွေသွင်း' : 'ငွေထုတ်'} အောင်မြင်ပါသည်။`;
+        });
 
-                    const { error: insertError } = await supabase.from('transactions').insert({ user_id: userId, amount, type });
-                    if (insertError) throw new Error(`Error inserting transaction: ${insertError.message}`);
+        document.getElementById('check-btn').addEventListener('click', async () => {
+            const checkUserId = document.getElementById('check-user-id').value;
+            const { data: user } = await supabase.from('users').select('balance, is_banned').eq('user_id', checkUserId).single();
+            if (!user) {
+                document.getElementById('user-info').textContent = 'User ID မရှိပါ။';
+            } else {
+                document.getElementById('user-info').innerHTML = `
+                    User ID: ${checkUserId}<br>
+                    လက်ကျန်ငွေ: ${user.balance} MMK<br>
+                    Ban ဖြစ်/မဖြစ်: ${user.is_banned ? 'Yes' : 'No'}
+                `;
+            }
+        });
 
-                    document.getElementById('message').textContent = `${type === 'deposit' ? 'ငွေသွင်း' : 'ငွေထုတ်'} အောင်မြင်ပါသည်။`;
-                } catch (err) {
-                    console.error('Transaction Error:', err);
-                    document.getElementById('message').textContent = `အမှား: ${err.message}`;
-                }
-            });
+        document.getElementById('ban-btn').addEventListener('click', async () => {
+            const checkUserId = document.getElementById('check-user-id').value;
+            await supabase.from('users').update({ is_banned: true }).eq('user_id', checkUserId);
+            document.getElementById('message').textContent = 'User ကို Ban လိုက်ပါပြီ။';
+        });
 
-            document.getElementById('check-btn').addEventListener('click', async () => {
-                try {
-                    const checkUserId = document.getElementById('check-user-id').value;
-                    const { data: user, error } = await supabase.from('users').select('balance, is_banned').eq('user_id', checkUserId).single();
+        document.getElementById('unban-btn').addEventListener('click', async () => {
+            const checkUserId = document.getElementById('check-user-id').value;
+            await supabase.from('users').update({ is_banned: false }).eq('user_id', checkUserId);
+            document.getElementById('message').textContent = 'User ကို Unban လိုက်ပါပြီ။';
+        });
 
-                    if (error || !user) {
-                        document.getElementById('user-info').textContent = 'User ID မရှိပါ။';
-                        return;
-                    }
-
-                    document.getElementById('user-info').innerHTML = `
-                        User ID: ${checkUserId}<br>
-                        လက်ကျန်ငွေ: ${user.balance} MMK<br>
-                        Ban ဖြစ်/မဖြစ်: ${user.is_banned ? 'Yes' : 'No'}
-                    `;
-                } catch (err) {
-                    console.error('Check User Error:', err);
-                    document.getElementById('message').textContent = `အမှား: ${err.message}`;
-                }
-            });
-
-            document.getElementById('ban-btn').addEventListener('click', async () => {
-                try {
-                    const checkUserId = document.getElementById('check-user-id').value;
-                    const { error } = await supabase.from('users').update({ is_banned: true }).eq('user_id', checkUserId);
-                    if (error) throw new Error(`Error banning user: ${error.message}`);
-                    document.getElementById('message').textContent = 'User ကို Ban လိုက်ပါပြီ။';
-                } catch (err) {
-                    console.error('Ban Error:', err);
-                    document.getElementById('message').textContent = `အမှား: ${err.message}`;
-                }
-            });
-
-            document.getElementById('unban-btn').addEventListener('click', async () => {
-                try {
-                    const checkUserId = document.getElementById('check-user-id').value;
-                    const { error } = await supabase.from('users').update({ is_banned: false }).eq('user_id', checkUserId);
-                    if (error) throw new Error(`Error unbanning user: ${error.message}`);
-                    document.getElementById('message').textContent = 'User ကို Unban လိုက်ပါပြီ။';
-                } catch (err) {
-                    console.error('Unban Error:', err);
-                    document.getElementById('message').textContent = `အမှား: ${err.message}`;
-                }
-            });
-
-            document.getElementById('start-game-btn').addEventListener('click', () => {
-                try {
-                    window.location.href = 'https://wingo-game.netlify.app';
-                } catch (err) {
-                    console.error('Start Game Error:', err);
-                    document.getElementById('message').textContent = `အမှား: ${err.message}`;
-                }
-            });
+        document.getElementById('start-game-btn').addEventListener('click', () => {
+            window.location.href = 'https://wingo-game.netlify.app';
         });
     </script>
 </body>
