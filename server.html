@@ -77,8 +77,8 @@
 
     <script>
         const supabase = Supabase.createClient(
-            process.env.SUPABASE_URL || 'https://qdusallinlchgvifxixd.supabase.co',
-            process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDMwMTE1NywiZXhwIjoyMDU5ODc3MTU3fQ.gDKIUHQxKwZubxyL-Nd_fg8ZeqyQKvMUswAeTnTterE'
+            'YOUR_SUPABASE_URL',
+            'YOUR_SUPABASE_SERVICE_ROLE_KEY'
         );
 
         window.addEventListener('load', () => {
@@ -93,10 +93,11 @@
                         return;
                     }
 
-                    const { data: user, error } = await supabase.from('users').select('balance').eq('user_id', userId).single();
+                    let { data: user, error } = await supabase.from('users').select('balance').eq('user_id', userId).single();
                     if (error || !user) {
-                        document.getElementById('message').textContent = 'User ID မရှိပါ။';
-                        return;
+                        const { error: insertError } = await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
+                        if (insertError) throw new Error(`Error creating user: ${insertError.message}`);
+                        user = { balance: 0 };
                     }
 
                     let newBalance = user.balance;
