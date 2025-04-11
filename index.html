@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wingo Game</title>
+    <title>Wingo - Ultimate Gambling Experience</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="/functions/data.js" defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            background: #000;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1e0033, #0d1a4d);
             color: #fff;
             min-height: 100vh;
             display: flex;
@@ -21,32 +20,36 @@
         header {
             display: flex;
             justify-content: space-between;
-            padding: 15px;
-            background: linear-gradient(90deg, #ff00ff, #00ff7f);
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
-            position: relative;
-            z-index: 10;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        #balance, #user-id { font-size: clamp(16px, 4vw, 24px); }
+        #user-id, #balance {
+            font-size: clamp(16px, 4vw, 22px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
 
         .winner-ticker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 215, 0, 0.9);
+            background: linear-gradient(90deg, #ffcc00, #ff4500);
             padding: 10px;
             overflow: hidden;
             white-space: nowrap;
-            z-index: 5;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
         }
 
         .winner-ticker span {
             display: inline-block;
-            padding-right: 20px;
-            animation: ticker 20s linear infinite;
+            padding-right: 30px;
+            animation: ticker 15s linear infinite;
             font-weight: bold;
+            color: #000;
         }
 
         @keyframes ticker {
@@ -58,16 +61,15 @@
             flex: 1;
             padding: 20px;
             text-align: center;
-            position: relative;
         }
 
         #round-id {
-            font-size: clamp(20px, 5vw, 28px);
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
+            font-size: clamp(22px, 6vw, 30px);
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
             animation: glow 2s infinite;
         }
 
@@ -78,48 +80,38 @@
         }
 
         .number-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 8px;
-            max-width: 1000px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        .number-row {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-        }
-
         .number-btn {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
             border: 2px solid #ffd700;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 60px;
-            height: 60px;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
+            aspect-ratio: 1;
         }
 
         .number-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px #ffd700;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #ffd700;
         }
 
         .number-btn img {
             width: 100%;
-            height: auto;
             max-width: 40px;
         }
 
         .color-bar {
-            height: 6px;
+            height: 5px;
             margin-top: 5px;
             width: 100%;
         }
@@ -128,54 +120,42 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin: 20px 0;
         }
 
         .option-btn, .mode-btn {
-            padding: 12px 25px;
+            padding: 12px 30px;
             font-size: clamp(14px, 3vw, 18px);
             border: none;
-            border-radius: 8px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
         }
 
-        .option-btn:hover, .mode-btn:hover { transform: translateY(-2px); }
+        .option-btn:hover, .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
         #green-btn { background: #00cc00; }
         #red-btn { background: #ff3333; }
-        #big-btn, #small-btn { background: #ffcc00; color: #000; }
+        #big-btn { background: #ffcc00; color: #000; }
+        #small-btn { background: #ffcc00; color: #000; }
+        #odd-btn { background: #00b7eb; }
+        #even-btn { background: #00b7eb; }
+        .mode-btn { background: #444; }
         .mode-btn.active { background: #ff4500; }
 
-        #bet-modal, #result {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px;
-            border-radius: 15px;
-            z-index: 1000;
-            display: none;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        #countdown {
+            font-size: clamp(40px, 10vw, 60px);
+            margin: 20px 0;
+            animation: pulse 1s infinite;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
         }
-
-        #bet-modal input { width: 100%; padding: 10px; font-size: 16px; margin: 10px 0; }
-        #bet-modal button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        #confirm-bet { background: #00cc00; }
-        #cancel-bet { background: #ff3333; }
-
-        #result img { width: 100%; max-width: 120px; }
-        #countdown { font-size: clamp(30px, 8vw, 40px); margin: 20px 0; animation: pulse 1s infinite; }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -183,11 +163,58 @@
             100% { transform: scale(1); }
         }
 
+        #bet-modal, #result {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            z-index: 1000;
+            display: none;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        #bet-modal input {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: none;
+        }
+
+        #bet-modal button, #result button {
+            padding: 12px 25px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        #confirm-bet { background: #00cc00; }
+        #cancel-bet { background: #ff3333; }
+        #close-result { background: #ff4500; }
+
+        #result img { width: 100%; max-width: 150px; }
+        #result-text { font-size: 20px; margin-top: 20px; }
+
         #history {
             background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-top: 2px solid #ffd700;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-top: 3px solid #ffd700;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        #history-list li {
+            list-style: none;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 5px 0;
+            border-radius: 8px;
         }
 
         #banned-message {
@@ -201,14 +228,15 @@
             display: none;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 30px;
             z-index: 2000;
         }
 
         @media (max-width: 600px) {
-            .number-btn { width: 50px; height: 50px; }
-            .number-btn img { max-width: 30px; }
-            header { flex-direction: column; align-items: center; }
+            .number-grid { grid-template-columns: repeat(3, 1fr); }
+            .number-btn { padding: 10px; }
+            header { flex-direction: column; gap: 10px; }
+            #countdown { font-size: 40px; }
         }
     </style>
 </head>
@@ -221,26 +249,24 @@
     <div class="container">
         <div id="round-id"></div>
         <div class="number-grid">
-            <div class="number-row">
-                <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-                <div class="number-btn" data-value="1"><img src="https://github.com/Opper125/wingo/raw/main/1.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-                <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-                <div class="number-btn" data-value="3"><img src="https://github.com/Opper125/wingo/raw/main/3.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-                <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-            </div>
-            <div class="number-row">
-                <div class="number-btn" data-value="5"><img src="https://github.com/Opper125/wingo/raw/main/5.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-                <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-                <div class="number-btn" data-value="7"><img src="https://github.com/Opper125/wingo/raw/main/7.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-                <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00cc00;"></div></div>
-                <div class="number-btn" data-value="9"><img src="https://github.com/Opper125/wingo/raw/main/9.png"><div class="color-bar" style="background: #ff3333;"></div></div>
-            </div>
+            <div class="number-btn" data-value="0"><img src="https://github.com/Opper125/wingo/raw/main/0.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="1"><img src="https://github.com/Opper125/wingo/raw/main/1.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            <div class="number-btn" data-value="2"><img src="https://github.com/Opper125/wingo/raw/main/2.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="3"><img src="https://github.com/Opper125/wingo/raw/main/3.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            <div class="number-btn" data-value="4"><img src="https://github.com/Opper125/wingo/raw/main/4.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="5"><img src="https://github.com/Opper125/wingo/raw/main/5.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            <div class="number-btn" data-value="6"><img src="https://github.com/Opper125/wingo/raw/main/6.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="7"><img src="https://github.com/Opper125/wingo/raw/main/7.png"><div class="color-bar" style="background: #ff3333;"></div></div>
+            <div class="number-btn" data-value="8"><img src="https://github.com/Opper125/wingo/raw/main/8.png"><div class="color-bar" style="background: #00cc00;"></div></div>
+            <div class="number-btn" data-value="9"><img src="https://github.com/Opper125/wingo/raw/main/9.png"><div class="color-bar" style="background: #ff3333;"></div></div>
         </div>
         <div class="options">
             <button id="green-btn" class="option-btn" data-type="green">GREEN</button>
             <button id="red-btn" class="option-btn" data-type="red">RED</button>
             <button id="big-btn" class="option-btn" data-type="big">BIG</button>
             <button id="small-btn" class="option-btn" data-type="small">SMALL</button>
+            <button id="odd-btn" class="option-btn" data-type="odd">ODD</button>
+            <button id="even-btn" class="option-btn" data-type="even">EVEN</button>
         </div>
         <div class="modes">
             <button class="mode-btn" data-time="1">1 မိနစ်</button>
@@ -259,6 +285,7 @@
     <div id="result">
         <img id="result-img" src="">
         <div id="result-text"></div>
+        <button id="close-result">OK</button>
     </div>
     <div id="history">
         <h3>မှတ်တမ်း</h3>
@@ -267,6 +294,11 @@
     <div id="banned-message">သင့်အကောင့်ကို ပိတ်ထားပါသည်။</div>
 
     <script>
+        const supabase = Supabase.createClient(
+            process.env.SUPABASE_URL || 'https://qdusallinlchgvifxixd.supabase.co',
+            process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDExNTcsImV4cCI6MjA1OTg3NzE1N30.Nnbjv3uJTfkwrrFE75PXU23yWATcfPRzQ748ULB8lGc'
+        );
+
         let userId = localStorage.getItem('userId');
         let balance = 0;
         let currentMode = 10;
@@ -343,7 +375,7 @@
             const amount = parseInt(document.getElementById('bet-amount').value);
             const value = document.getElementById('bet-modal').dataset.value;
             if (amount >= 100 && amount <= balance) {
-                bets[value] = amount;
+                bets[value] = (bets[value] || 0) + amount;
                 balance -= amount;
                 await supabase.from('users').update({ balance }).eq('user_id', userId);
                 await supabase.from('transactions').insert({ user_id: userId, amount, type: 'bet' });
@@ -376,7 +408,7 @@
             const roundId = document.getElementById('round-id').textContent;
             let result;
             const totalBet = Object.values(bets).reduce((a, b) => a + b, 0);
-            if (totalBet >= 10000 && bets[Object.keys(bets)[0]] === totalBet) {
+            if (totalBet >= 10000 && Object.keys(bets).length === 1) {
                 const betNumber = parseInt(Object.keys(bets)[0]);
                 result = (betNumber + Math.floor(Math.random() * 9) + 1) % 10;
             } else {
@@ -387,18 +419,22 @@
             const redNumbers = [1, 3, 5, 7, 9];
             const smallNumbers = [0, 1, 2, 3, 4];
             const bigNumbers = [5, 6, 7, 8, 9];
+            const oddNumbers = [1, 3, 5, 7, 9];
+            const evenNumbers = [0, 2, 4, 6, 8];
 
-            const resultImg = `https://github.com/Opper125/wingo/raw/main/${bets[result] || (bets['green'] && greenNumbers.includes(result)) || (bets['red'] && redNumbers.includes(result)) || (bets['big'] && bigNumbers.includes(result)) || (bets['small'] && smallNumbers.includes(result)) ? 'win.png' : 'lost.png'}`;
+            const resultImg = `https://github.com/Opper125/wingo/raw/main/${bets[result] || (bets['green'] && greenNumbers.includes(result)) || (bets['red'] && redNumbers.includes(result)) || (bets['big'] && bigNumbers.includes(result)) || (bets['small'] && smallNumbers.includes(result)) || (bets['odd'] && oddNumbers.includes(result)) || (bets['even'] && evenNumbers.includes(result)) ? 'win.png' : 'lost.png'}`;
             let winnings = 0;
 
             for (let bet in bets) {
                 if (bet == result) {
-                    winnings += bets[bet] * 3.5; // 3.5x for number bets
+                    winnings += bets[bet] * 3.5; // 3.5x for exact number
                 } else if ((bet === 'green' && greenNumbers.includes(result)) ||
                            (bet === 'red' && redNumbers.includes(result)) ||
                            (bet === 'big' && bigNumbers.includes(result)) ||
-                           (bet === 'small' && smallNumbers.includes(result))) {
-                    winnings += bets[bet] * 2; // 2x for color/size bets
+                           (bet === 'small' && smallNumbers.includes(result)) ||
+                           (bet === 'odd' && oddNumbers.includes(result)) ||
+                           (bet === 'even' && evenNumbers.includes(result))) {
+                    winnings += bets[bet] * 2; // 2x for other bets
                 }
             }
 
@@ -412,11 +448,11 @@
             }
 
             document.getElementById('balance').textContent = `${balance} MMK`;
-            const resultText = winnings > 0 ? `Win +${winnings} MMK` : `Lost -${Object.values(bets).reduce((a, b) => a + b, 0)} MMK`;
+            const resultText = winnings > 0 ? `Win +${winnings} MMK` : `Lost -${totalBet} MMK`;
             document.getElementById('result-img').src = resultImg;
             document.getElementById('result-text').innerHTML = `
                 ပွဲစဉ်: ${roundId}<br>
-                ရလဒ်: ${result} (${bigNumbers.includes(result) ? 'Big' : 'Small'} ${greenNumbers.includes(result) ? 'Green' : 'Red'})<br>
+                ရလဒ်: ${result} (${bigNumbers.includes(result) ? 'Big' : 'Small'} ${greenNumbers.includes(result) ? 'Green' : 'Red'} ${oddNumbers.includes(result) ? 'Odd' : 'Even'})<br>
                 ${resultText}<br>
                 ${mode} မိနစ် Play
             `;
@@ -424,14 +460,14 @@
 
             await supabase.from('game_rounds').insert({ round_id: roundId, mode, result, created_at: new Date().toISOString() });
             addToHistory(result, winnings, mode);
-            setTimeout(() => {
+            document.getElementById('close-result').addEventListener('click', () => {
                 document.getElementById('result').style.display = 'none';
                 roundCounters[mode]++;
                 updateRoundId(mode);
                 bets = {};
                 checkDateChange(mode);
                 startCountdown(mode);
-            }, 3000);
+            }, { once: true });
         }
 
         function addToHistory(result, winnings, mode) {
@@ -458,6 +494,26 @@
 
         function disableGame() {
             document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+        }
+
+        async function fetchGameHistory(userId) {
+            const { data, error } = await supabase.from('transactions')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false })
+                .limit(10);
+            if (error) console.error('Error fetching history:', error);
+            return data || [];
+        }
+
+        function updateHistoryUI(history) {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            history.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.created_at} - ${item.type === 'bet' ? 'Bet' : 'Win'} ${item.amount} MMK`;
+                historyList.appendChild(li);
+            });
         }
 
         supabase.channel('users').on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `user_id=eq.${userId}` }, payload => {
