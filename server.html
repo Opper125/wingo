@@ -14,7 +14,6 @@
             display: flex;
             justify-content: center;
         }
-
         .container {
             background: rgba(255, 255, 255, 0.1);
             padding: 30px;
@@ -23,7 +22,6 @@
             max-width: 700px;
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
         }
-
         h2, h3 { margin-bottom: 20px; }
         input, select, button {
             width: 100%;
@@ -33,13 +31,11 @@
             border: none;
             font-size: 16px;
         }
-
         button {
             background: #00cc00;
             cursor: pointer;
             transition: all 0.3s;
         }
-
         button:hover { background: #009900; }
         #withdraw-btn { background: #ff3333; }
         #withdraw-btn:hover { background: #cc0000; }
@@ -95,9 +91,8 @@
 
                     let { data: user, error } = await supabase.from('users').select('balance').eq('user_id', userId).single();
                     if (error || !user) {
-                        const { error: insertError } = await supabase.from('users').insert({ user_id: userId, balance: 0, is_banned: false });
-                        if (insertError) throw new Error(`Error creating user: ${insertError.message}`);
-                        user = { balance: 0 };
+                        document.getElementById('message').textContent = 'User ID မရှိပါ။';
+                        return;
                     }
 
                     let newBalance = user.balance;
@@ -171,7 +166,7 @@
 
             document.getElementById('start-game-btn').addEventListener('click', () => {
                 try {
-                    window.location.href = '/index.html';
+                    window.location.href = 'https://wingo-game.netlify.app';
                 } catch (err) {
                     console.error('Start Game Error:', err);
                     document.getElementById('message').textContent = `အမှား: ${err.message}`;
