@@ -269,12 +269,12 @@
     <script>
         let userId = localStorage.getItem('userId');
         let balance = 0;
-        let roundCounter = 1;
-        let currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         let currentMode = 10;
         let bets = {};
         let countdown;
         let bettingOpen = true;
+        let roundCounters = { 1: 1, 3: 1, 5: 1, 10: 1 };
+        let currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
 
         async function initializeUser() {
             if (!userId) {
@@ -297,27 +297,30 @@
             }
         }
 
-        function updateRoundId() {
-            const roundId = `${currentDate}${String(roundCounter).padStart(5, '0')}`;
+        function updateRoundId(mode) {
+            const roundId = `${currentDate}${mode}${String(roundCounters[mode]).padStart(4, '0')}`;
             document.getElementById('round-id').textContent = roundId;
         }
 
-        function startCountdown() {
-            let timeLeft = currentMode * 60;
+        function startCountdown(mode) {
+            clearInterval(countdown);
+            const totalSeconds = mode * 60;
+            let timeLeft = totalSeconds - (Math.floor(Date.now() / 1000) % totalSeconds);
             document.getElementById('countdown').style.display = 'block';
-            bettingOpen = true;
+            bettingOpen = timeLeft > 10;
             countdown = setInterval(async () => {
+                timeLeft = totalSeconds - (Math.floor(Date.now() / 1000) % totalSeconds);
                 document.getElementById('countdown').textContent = `${Math.floor(timeLeft / 60)}:${String(timeLeft % 60).padStart(2, '0')}`;
                 if (timeLeft <= 10) {
                     bettingOpen = false;
                     document.getElementById('countdown').style.fontSize = '50px';
                     document.getElementById('countdown').textContent = `${timeLeft} စက္ကန့်`;
-                    if (timeLeft === 0) {
-                        clearInterval(countdown);
-                        await endRound();
+                    if (timeLeft === 1) {
+                        await endRound(mode);
                     }
+                } else {
+                    document.getElementById('countdown').style.fontSize = '40px';
                 }
-                timeLeft--;
             }, 1000);
         }
 
@@ -361,12 +364,12 @@
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentMode = parseInt(btn.dataset.time);
-                clearInterval(countdown);
-                startCountdown();
+                updateRoundId(currentMode);
+                startCountdown(currentMode);
             });
         });
 
-        async function endRound() {
+        async function endRound(mode) {
             document.getElementById('countdown').style.display = 'none';
             const roundId = document.getElementById('round-id').textContent;
             const result = Math.floor(Math.random() * 10);
@@ -405,32 +408,32 @@
                 ပွဲစဉ်: ${roundId}<br>
                 ရလဒ်: ${result} (${bigNumbers.includes(result) ? 'Big' : 'Small'} ${greenNumbers.includes(result) ? 'Green' : 'Red'})<br>
                 ${resultText}<br>
-                ${currentMode} မိနစ် Play
+                ${mode} မိနစ် Play
             `;
             document.getElementById('result').style.display = 'block';
 
-            addToHistory(result, winnings);
+            addToHistory(result, winnings, mode);
             setTimeout(() => {
                 document.getElementById('result').style.display = 'none';
-                roundCounter++;
-                updateRoundId();
+                roundCounters[mode]++;
+                updateRoundId(mode);
                 bets = {};
-                checkDateChange();
-                startCountdown();
+                checkDateChange(mode);
+                startCountdown(mode);
             }, 3000);
         }
 
-        function addToHistory(result, winnings) {
+        function addToHistory(result, winnings, mode) {
             const li = document.createElement('li');
-            li.textContent = `${document.getElementById('round-id').textContent} - ${result} (${winnings > 0 ? `+${winnings}` : `-${Object.values(bets).reduce((a, b) => a + b, 0)}`}) - ${currentMode} မိနစ်`;
+            li.textContent = `${document.getElementById('round-id').textContent} - ${result} (${winnings > 0 ? `+${winnings}` : `-${Object.values(bets).reduce((a, b) => a + b, 0)}`}) - ${mode} မိနစ်`;
             document.getElementById('history-list').prepend(li);
         }
 
-        function checkDateChange() {
+        function checkDateChange(mode) {
             const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             if (today !== currentDate) {
                 currentDate = today;
-                roundCounter = 1;
+                roundCounters[mode] = 1;
                 document.getElementById('history-list').innerHTML = '';
             }
         }
@@ -461,8 +464,8 @@
 
         window.addEventListener('load', () => {
             initializeUser().then(() => {
-                updateRoundId();
-                startCountdown();
+                updateRoundId(currentMode);
+                startCountdown(currentMode);
             }).catch(err => console.error('Initialization error:', err));
         });
     </script>
