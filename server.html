@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wingo Server Panel</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="/functions/data.js" defer></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -69,6 +68,11 @@
     </div>
 
     <script>
+        const supabase = Supabase.createClient(
+            'https://qdusallinlchgvifxixd.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFkdXNhbGxpbmxjaGd2aWZ4aXhkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDMwMTE1NywiZXhwIjoyMDU5ODc3MTU3fQ.gDKIUHQxKwZubxyL-Nd_fg8ZeqyQKvMUswAeTnTterE'
+        );
+
         window.addEventListener('load', () => {
             document.getElementById('submit-btn').addEventListener('click', async () => {
                 const userId = document.getElementById('user-id-input').value;
@@ -97,8 +101,16 @@
                     newBalance -= amount;
                 }
 
-                await supabase.from('users').update({ balance: newBalance }).eq('user_id', userId);
-                await supabase.from('transactions').insert({ user_id: userId, amount, type });
+                const { error: updateError } = await supabase.from('users').update({ balance: newBalance }).eq('user_id', userId);
+                if (updateError) {
+                    console.error('Update error:', updateError);
+                    document.getElementById('message').textContent = 'အမှားတစ်ခုဖြစ်ပွားခဲ့သည်။';
+                    return;
+                }
+
+                const { error: insertError } = await supabase.from('transactions').insert({ user_id: userId, amount, type });
+                if (insertError) console.error('Insert error:', insertError);
+
                 document.getElementById('message').textContent = `${type === 'deposit' ? 'ငွေသွင်း' : 'ငွေထုတ်'} အောင်မြင်ပါသည်။`;
             });
 
@@ -120,13 +132,15 @@
 
             document.getElementById('ban-btn').addEventListener('click', async () => {
                 const checkUserId = document.getElementById('check-user-id').value;
-                await supabase.from('users').update({ is_banned: true }).eq('user_id', checkUserId);
+                const { error } = await supabase.from('users').update({ is_banned: true }).eq('user_id', checkUserId);
+                if (error) console.error('Ban error:', error);
                 document.getElementById('message').textContent = 'User ကို Ban လိုက်ပါပြီ။';
             });
 
             document.getElementById('unban-btn').addEventListener('click', async () => {
                 const checkUserId = document.getElementById('check-user-id').value;
-                await supabase.from('users').update({ is_banned: false }).eq('user_id', checkUserId);
+                const { error } = await supabase.from('users').update({ is_banned: false }).eq('user_id', checkUserId);
+                if (error) console.error('Unban error:', error);
                 document.getElementById('message').textContent = 'User ကို Unban လိုက်ပါပြီ။';
             });
         });
